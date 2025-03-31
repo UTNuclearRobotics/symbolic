@@ -29,11 +29,6 @@ lib_dependent_option(${LIB_CMAKE_NAME}_MAIN_BUILD
 # Generate a compilation database for autocompletion.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Use testing framework.
-if(${LIB_CMAKE_NAME}_MAIN_BUILD)
-    include(CTest)
-endif()
-
 # Define CMake options.
 lib_option(BUILD_DOCS "Build docs." OFF)
 lib_option(BUILD_EXAMPLES "Build examples." ON)
@@ -49,17 +44,47 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Set output directories.
-if(${LIB_CMAKE_NAME}_MAIN_BUILD)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-endif()
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # Standardize install directories.
 include(GNUInstallDirs)
 
 # Build the library.
 add_subdirectory(src)
+
+# Ensure shared library is built
+set(BUILD_SHARED_LIBS ON)
+
+# Generate and install CMake package config files
+include(CMakePackageConfigHelpers)
+set(CONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/symbolic")
+
+install(TARGETS symbolic
+    # EXPORT symbolicTargets
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+# Export the target file for find_package()
+install(EXPORT symbolicTargets
+    FILE symbolicTargets.cmake
+    NAMESPACE symbolic::
+    DESTINATION ${CONFIG_INSTALL_DIR})
+
+# Create a config file for find_package()
+configure_package_config_file(
+    cmake/symbolicConfig.cmake.in
+    ${CMAKE_BINARY_DIR}/symbolicConfig.cmake
+    INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}
+)
+
+install(FILES
+    ${CMAKE_BINARY_DIR}/symbolicConfig.cmake
+    DESTINATION ${CONFIG_INSTALL_DIR}
+)
 
 # Build examples.
 if(${LIB_CMAKE_NAME}_BUILD_EXAMPLES)
@@ -80,3 +105,4 @@ if(${LIB_CMAKE_NAME}_BUILD_DOCS)
         add_subdirectory(docs)
     endif()
 endif()
+
