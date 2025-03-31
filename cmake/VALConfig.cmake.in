@@ -1,0 +1,19 @@
+@PACKAGE_INIT@
+
+# Define the path to the VAL library and include directories
+set(VAL_LIBRARY_DIR ${CMAKE_INSTALL_LIBDIR})
+set(VAL_INCLUDE_DIR ${CMAKE_INSTALL_INCLUDEDIR})
+
+# Specify the target for the VAL library
+find_library(VAL_LIBRARIES NAMES VAL PATHS ${VAL_LIBRARY_DIR} REQUIRED)
+
+# Ensure the include directory is available
+include_directories(${VAL_INCLUDE_DIR})
+
+# Define the target for linking
+set(VAL_TARGET VAL)
+
+# Optionally, include the symbolicTargets.cmake if needed
+include("${CMAKE_CURRENT_LIST_DIR}/symbolicTargets.cmake")
+
+check_required_components(VAL)
