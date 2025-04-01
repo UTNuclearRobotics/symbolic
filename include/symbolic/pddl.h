@@ -203,6 +203,7 @@ class Pddl {
   void RemoveObject(const std::string& name);
 
   const VAL::analysis* symbol() const { return analysis_.get(); }
+  VAL::analysis* analysis() { return analysis_.get(); }
 
   /**
    * Pddl domain name.
