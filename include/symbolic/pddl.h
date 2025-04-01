@@ -249,7 +249,7 @@ class Pddl {
 
   const Formula& goal() const { return goal_; }
 
- private:
+//  private:
   std::shared_ptr<VAL::analysis> analysis_;
   std::string domain_pddl_;
   std::string problem_pddl_;
